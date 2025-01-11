@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <limits>
 #include "TicTacToe.hpp"
 //#include "Lig4.hpp"
 //#include "Reversi.hpp"
@@ -35,27 +36,40 @@ public:
             {
                 game.changeTurn();
             }
-            game.printBoard();
+            game.board.print();
         }
     }
 
     void run() const {
         while (true) {
-            this->listGames();
+            this->listGames(); // Lista os jogos disponíveis
             std::cout << "Escolha um jogo (0 para sair): ";
-            int choice;
-            std::cin >> choice;
-            std::cout << std::endl;
 
-            if (choice == 0) break; // Encerrar programa
+            std::string input;
+            std::getline(std::cin, input);
+
+            // Verifica se a entrada é numérica
+            if (!std::all_of(input.begin(), input.end(), ::isdigit)) {
+                std::cout << "Erro: Entrada inválida! Por favor, insira um número." << std::endl;
+                continue; // Volta ao início do loop
+            }
+
+            const int choice = std::stoi(input); // Agora é seguro converter para inteiro
+
+            if (choice == 0) {
+                std::cout << "Saindo do programa." << std::endl;
+                break; // Encerra o programa
+            }
+
             if (choice < 1 || choice > static_cast<int>(games.size())) {
-                std::cout << "Escolha invalida! Tente novamente." << std::endl;
-                continue;
+                std::cout << "Escolha inválida! Insira um número entre 1 e " << games.size() << "." << std::endl;
+                continue; // Volta ao início do loop
             }
 
             // Jogue o jogo selecionado
             playGame(*this->games[choice - 1]);
         }
     }
+
 
 };

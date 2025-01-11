@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.30)
-project(BoardGames2)
+project(BoardGames)
 
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-add_executable(BoardGames2 src/main.cpp
+add_executable(BoardGames src/main.cpp
         include/Game.hpp
         include/Board.hpp
         include/TicTacToe.hpp

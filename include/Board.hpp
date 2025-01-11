@@ -16,29 +16,80 @@ public:
         this->grid.resize(size[0], std::vector<std::shared_ptr<Piece>>(size[1], nullptr));
     }
 
+private:
+    void printHeader(const std::string& spacing) const {
+        // Espaçamento inicial para alinhar o header com os índices laterais
+        std::cout << " ";
+        for (int x = 0; x < this->size[0]; ++x) {
+            const char letter = 'A' + x;
+            std::cout << spacing << letter << spacing;
+        }
+        std::cout << std::endl;
+    }
+public:
 
     void print() const {
+        const std::string spacing = " "; // Espaçamento fixo entre as colunas
+
+        // Superior horizontal header
+        this->printHeader(spacing);
+
+        // Corpo do tabuleiro
         for (size_t y = 0; y < size[1]; y++) {
+            // Índice da linha na lateral esquerda
+            std::cout << y + 1;
             for (size_t x = 0; x < size[0]; x++) {
-                if (x > 0) std::cout << " ";
                 if (grid[x][y] != nullptr) {
-                    std::cout << grid[x][y]->getSymbol();
+                    std::cout << spacing << grid[x][y]->getSymbol() << spacing;;
                 } else {
-                    std::cout << ".";
+                    // Espaço vazio para células sem peça
+                    std::cout << spacing << "-" << spacing;
                 }
             }
-            std::cout << std::endl;
+            // Índice da linha na lateral direita
+            std::cout << y + 1 << std::endl;
         }
+
+        // Inferior horizontal header
+        this->printHeader(spacing);
     }
 
-    [[nodiscard]] std::array<size_t, 2> getSize() const
+    [[nodiscard]] std::array<size_t, 2> parseInput(const std::string &input) const
     {
-        return this->size;
+        // Expressão regular para validar o formato 'CN' (char e número)
+        const std::regex pattern("^[a-zA-Z](1[0-9]|2[0-6]|[1-9])$");
+
+        // Valida o formato do movimento
+        if (!std::regex_match(input, pattern)) {
+            throw std::invalid_argument("Formato invalido: esperado 'CN' (ex: A1 ou a1).");
+        }
+
+        std::array<size_t, 2> pos{};
+        // Converte a primeira posição
+        // Índice da linha
+        pos[0] = toupper(input[0]) - 'A';
+        // Índice da coluna (1 ou 2 dígitos)
+        pos[1] = std::stoi(input.substr(1, input[2] == ' ' ? 1 : 2)) - 1;
+
+        // Verifica se as posições estão no intervalo válido
+        if (!this->isValid(pos)) {
+            const char letter = 'A' + this->size[0];
+            throw std::out_of_range("Movimento fora dos limites do tabuleiro (valido: A1 a " + letter + std::to_string(this->size[1]) + ").");
+        }
+
+        return pos;
+    }
+
+    [[nodiscard]] std::array<size_t, 2> getSize() const { return this->size; }
+
+    [[nodiscard]] bool isValid(const std::array<size_t, 2> pos) const
+    {
+        return pos[0] < this->size[0] && pos[1] < this->size[1];
     }
 
 
     bool set(const std::array<size_t, 2> pos, std::shared_ptr<Piece> piece) {
-        if (pos[0] < size[0] && pos[1] < size[1] && !this->grid[pos[0]][pos[1]]) {
+        if (isValid(pos) && !this->grid[pos[0]][pos[1]]) {
             this->grid[pos[0]][pos[1]] = std::move(piece);
             return true;
         }
@@ -63,7 +114,7 @@ public:
     }
 
     [[nodiscard]] std::shared_ptr<Piece> get(const std::array<size_t, 2> pos) const {
-        if (pos[0] < size[0] && pos[1] < size[1]) {
+        if (isValid(pos)) {
             return this->grid[pos[0]][pos[1]];
         }
         return nullptr;

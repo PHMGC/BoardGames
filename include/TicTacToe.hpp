@@ -20,24 +20,28 @@ public:
 
     void initialize() override {
         std::cout << "Bem-vindo ao Jogo da Velha!\n";
-        printBoard();
+        this->board.print();
     }
 
     bool playTurn() override {
         std::cout << "Jogador " << static_cast<int>(currentPlayer) << ", escolha sua jogada (linha e coluna): ";
         std::string input;
         std::getline(std::cin, input);
-        std::array<size_t, 2> pos{};
-        this->parsePlace(input, pos);
+        try
+        {
+            const std::array<size_t, 2> pos = this->board.parseInput(input);
+            if (board.get({pos[0], pos[1]})) {
+                std::cout << "Espaco ocupado. Tente novamente.\n";
+                return false;
+            }
+            return true;
 
-        if (pos[0] >= 3 || pos[1] >= 3 || board.get({pos[0], pos[1]})) {
-            std::cout << "Jogada inválida. Tente novamente.\n";
+        } catch (std::exception& e)
+        {
+            std::cout << "Jogada invalida: " << e.what() << std::endl;
+            std::cout << "Tente novamente.\n";
             return false;
         }
-
-        board.set({pos[0], pos[1]}, std::make_shared<TTTPiece>(currentPlayer));
-
-        return true;
     }
 
     bool isWin() override {

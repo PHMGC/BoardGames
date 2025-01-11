@@ -16,11 +16,6 @@ public:
 
     virtual ~Game() = default;
 
-    void printBoard() const
-    {
-        board.print();
-    }
-
     std::string getName() { return this->name; }
 
     void changeTurn()
