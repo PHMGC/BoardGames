@@ -27,22 +27,22 @@ public:
         std::cout << "Jogador " << static_cast<int>(currentPlayer) << ", escolha sua jogada (linha e coluna): ";
         std::string input;
         std::getline(std::cin, input);
-        try
-        {
+        try {
             const std::array<size_t, 2> pos = this->board.parseInput(input);
-            if (board.get({pos[0], pos[1]})) {
+            if (board.get(pos)) {
                 std::cout << "Espaco ocupado. Tente novamente.\n";
                 return false;
             }
+            board.set(pos, std::make_shared<TTTPiece>(currentPlayer));
             return true;
-
-        } catch (std::exception& e)
-        {
-            std::cout << "Jogada invalida: " << e.what() << std::endl;
+        } catch (std::exception& e) {
+            std::cout << "Jogada invalida: " << e.what() << "\n";
             std::cout << "Tente novamente.\n";
             return false;
         }
     }
+
+
 
     bool isWin() override {
         // Verifica linhas, colunas

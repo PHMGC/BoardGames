@@ -28,12 +28,14 @@ public:
         }
     }
 
-    static void playGame(Game& game)
-    {
+    static void playGame(Game& game) {
         game.initialize();
-        while (!game.isOver()) {
-            if (game.playTurn())
-            {
+        while (true) {
+            if (game.playTurn()) {
+                if (game.isOver()) { // Verifica vitória ou empate após jogada válida
+                    game.board.print();
+                    break;
+                }
                 game.changeTurn();
             }
             game.board.print();

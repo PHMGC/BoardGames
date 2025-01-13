@@ -73,8 +73,11 @@ public:
 
         // Verifica se as posições estão no intervalo válido
         if (!this->isValid(pos)) {
-            const char letter = 'A' + this->size[0];
-            throw std::out_of_range("Movimento fora dos limites do tabuleiro (valido: A1 a " + letter + std::to_string(this->size[1]) + ").");
+            const std::string maxPos = std::string(1, static_cast<char>('A' + static_cast<int>(this->size[0]) - 1)) + //coluna máxima (letra)
+                std::to_string(this->size[1]); // linha máxima (número)
+            throw std::out_of_range(
+                "Movimento fora dos limites do tabuleiro (valido: A1 a " + maxPos + ")."
+            );
         }
 
         return pos;
