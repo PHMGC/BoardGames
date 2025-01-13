@@ -28,7 +28,7 @@ public:
         std::string input;
         std::getline(std::cin, input);
         try {
-            const std::array<size_t, 2> pos = this->board.parseInput(input);
+            const std::array<size_t, 2> pos = this->board.parsePosInput(input);
             if (board.get(pos)) {
                 std::cout << "Espaco ocupado. Tente novamente.\n";
                 return false;

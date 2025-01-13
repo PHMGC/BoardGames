@@ -16,6 +16,14 @@ public:
         this->grid.resize(size[0], std::vector<std::shared_ptr<Piece>>(size[1], nullptr));
     }
 
+    void reset() {
+        for (auto row = 0; row < size[0]; row++) {
+            for (auto col = 0; col < size[1]; col++) {
+                this->grid[row][col] = nullptr;
+            }
+        }
+    }
+
 private:
     void printHeader(const std::string& spacing) const {
         // Espaçamento inicial para alinhar o header com os índices laterais
@@ -54,12 +62,35 @@ public:
         this->printHeader(spacing);
     }
 
-    [[nodiscard]] std::array<size_t, 2> parseInput(const std::string &input) const
+    [[nodiscard]] size_t parseColInput(const char input) const {
+        // Valida o formato do input
+        if (!std::isalnum(input)) {
+            throw std::invalid_argument("Formato invalido: esperado 'C' (ex: A ou a).");
+        }
+        std::array<size_t, 2> pos{};
+        // Converte a primeira posição
+        // Índice da linha
+        pos[0] = toupper(input) - 'A';
+        // Índice da coluna (1 ou 2 dígitos)
+        pos[1] = 0;
+
+        // Verifica se as posições estão no intervalo válido
+        if (!this->isValid(pos)) {
+            const auto maxPos = std::string(1, static_cast<char>('A' + static_cast<int>(this->size[0]) - 1)); //coluna máxima (letra)
+            throw std::out_of_range(
+                "Movimento fora dos limites do tabuleiro (valido: A a " + maxPos + ")."
+            );
+        }
+
+        return pos[0];
+    }
+
+    [[nodiscard]] std::array<size_t, 2> parsePosInput(const std::string &input) const
     {
         // Expressão regular para validar o formato 'CN' (char e número)
         const std::regex pattern("^[a-zA-Z](1[0-9]|2[0-6]|[1-9])$");
 
-        // Valida o formato do movimento
+        // Valida o formato do input
         if (!std::regex_match(input, pattern)) {
             throw std::invalid_argument("Formato invalido: esperado 'CN' (ex: A1 ou a1).");
         }
@@ -91,12 +122,13 @@ public:
     }
 
 
-    bool set(const std::array<size_t, 2> pos, std::shared_ptr<Piece> piece) {
+    void set(const std::array<size_t, 2> pos, std::shared_ptr<Piece> piece) {
         if (isValid(pos) && !this->grid[pos[0]][pos[1]]) {
             this->grid[pos[0]][pos[1]] = std::move(piece);
-            return true;
         }
-        return false;
+        else {
+            throw std::invalid_argument("Tentativa de setar peça no tabuleiro de forma inválida.");
+        }
     }
 
     bool move(const std::array<size_t, 2> startPos, const std::array<size_t, 2> endPos, const bool checkCollision = true) {
