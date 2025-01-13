@@ -6,7 +6,7 @@
 #include <string>
 #include "TicTacToe.hpp"
 #include "Lig4.hpp"
-//#include "Reversi.hpp"
+#include "Reversi.hpp"
 
 class GameManager {
     std::vector<std::unique_ptr<Game>> games; // Lista de jogos disponíveis
@@ -16,7 +16,7 @@ public:
         // Adicione jogos disponíveis ao vetor
         games.push_back(std::make_unique<TicTacToe>());
         games.push_back(std::make_unique<Lig4>());
-        //games.push_back(std::make_unique<Reversi>());
+        games.push_back(std::make_unique<Reversi>());
     }
 
     void listGames() const

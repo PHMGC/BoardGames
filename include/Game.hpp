@@ -22,7 +22,7 @@ public:
     {
         this->currentPlayer = currentPlayer == Player::One ? Player::Two : Player::One;
     }
-    bool isOver()
+    virtual bool isOver()
     {
         if (isWin()) {
             std::cout << "Jogador " << static_cast<int>(currentPlayer) << " venceu!\n";
