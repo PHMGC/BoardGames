@@ -13,5 +13,11 @@ add_executable(BoardGames src/main.cpp
         include/Piece.hpp
 )
 
+## Adding SFML project to build
+add_subdirectory(SFML)
+#
+## SFML library linkage
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
