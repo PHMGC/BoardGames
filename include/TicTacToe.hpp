@@ -14,7 +14,8 @@ public:
     }
 };
 
-class TicTacToe final : public Game {
+class TicTacToe final : public Game
+{
 public:
     TicTacToe() : Game({3, 3}, "TicTacToe") {}
 
@@ -45,14 +46,18 @@ public:
 
 
     bool isWin() override {
-        // Verifica linhas, colunas
-        for (size_t i = 0; i < 3; ++i) {
-            if (checkLine({i, 0}, {i, 1}, {i, 2}) || checkLine({0, i}, {1, i}, {2, i})) {
-                return true;
+        // Verifica linhas, colunas e diagonais
+        for (size_t x = 0; x < this->board.getSize()[0]; ++x) {
+            for (size_t y = 0; y < this->board.getSize()[1]; ++y) {
+                if (checkLine({x, y}, {x + 1, y}, {x + 2, y}) || // Linha horizontal
+                    checkLine({x, y}, {x, y + 1}, {x, y + 2}) || // Linha vertical
+                    checkLine({x, y}, {x + 1, y + 1}, {x + 2, y + 2}) || // Diagonal principal
+                    checkLine({x, y}, {x + 1, y - 1}, {x + 2, y - 2})) { // Diagonal secundária
+                    return true;
+                    }
             }
         }
-        // Verifica diagonais
-        return checkLine({0, 0}, {1, 1}, {2, 2}) || checkLine({0, 2}, {1, 1}, {2, 0});
+        return false;
     }
 
     bool isDraw() override {

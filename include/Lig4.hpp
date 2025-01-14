@@ -17,7 +17,7 @@ public:
 
 class Lig4 final : public Game {
 public:
-    Lig4() : Game({6, 7}, "Lig4") {}
+    Lig4() : Game({7, 6}, "Lig4") {}
 
     void initialize() override {
         std::cout << "Bem-vindo ao Lig4!\n";

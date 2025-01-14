@@ -121,16 +121,6 @@ public:
         return pos[0] < this->size[0] && pos[1] < this->size[1];
     }
 
-
-    void set(const std::array<size_t, 2> pos, std::shared_ptr<Piece> piece) {
-        if (isValid(pos) && !this->grid[pos[0]][pos[1]]) {
-            this->grid[pos[0]][pos[1]] = std::move(piece);
-        }
-        else {
-            throw std::invalid_argument("Tentativa de setar peça no tabuleiro de forma inválida.");
-        }
-    }
-
     bool move(const std::array<size_t, 2> startPos, const std::array<size_t, 2> endPos, const bool checkCollision = true) {
         if (startPos < this->size && endPos < this->size &&
             this->grid[startPos[0]][startPos[1]] &&
@@ -153,5 +143,15 @@ public:
             return this->grid[pos[0]][pos[1]];
         }
         return nullptr;
+    }
+
+    void set(const std::array<size_t, 2> pos, std::shared_ptr<Piece> piece) {
+        if (!isValid(pos)) {
+            throw std::invalid_argument("Posição fora dos limites do tabuleiro.");
+        }
+        if (this->grid[pos[0]][pos[1]] != nullptr) {
+            throw std::invalid_argument("Tentativa de sobrescrever uma posição ocupada.");
+        }
+        this->grid[pos[0]][pos[1]] = std::move(piece);
     }
 };

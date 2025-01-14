@@ -74,7 +74,9 @@ public:
             }
             catch (std::invalid_argument& e) {
                 std::cout << "Erro: Entrada inválida! Por favor, insira um número." << std::endl;
+                std::cout << e.what() << std::endl;
             }
+            //catch (std::c)
 
         }
     }
