@@ -3,9 +3,9 @@
 
 #include "UI/LoginScene.hpp"
 
-void LoginScene::handleAction(int index) {
+void LoginScene::handleAction(const int index) {
     switch (index) {
-    case 1:
+    case 3:
     	scene_manager->setCurrentScene(SceneType::MENU);
     	break;
     default:

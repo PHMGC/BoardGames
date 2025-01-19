@@ -26,32 +26,33 @@ public:
 
     void handleEvents(const std::optional<sf::Event> event) override {
         auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
-        auto hitBoxes = {
-            std::make_pair(&play, 1),
-            std::make_pair(&leaderboard, 2),
-            std::make_pair(&quit, 3)
+		std::vector<std::pair<sf::FloatRect, int>> hitboxes = {
+            {play.getHitbox(),        1},
+            {leaderboard.getHitbox(), 2},
+            {quit.getHitbox(),        3}
         };
 
         if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->scancode == sf::Keyboard::Scancode::Up)
-                toggle_aux = (toggle_aux > 1) ? toggle_aux - 1 : hitBoxes.size();
+                toggle_aux--;
             else if (keyPressed->scancode == sf::Keyboard::Scancode::Down)
-                toggle_aux = (toggle_aux < hitBoxes.size()) ? toggle_aux + 1 : 1;
+                toggle_aux++;
             else if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
                 handleAction(toggle_aux);
         }
+        toggle_aux = std::clamp(toggle_aux, 1, static_cast<int>(hitboxes.size()));
 
-        for (const auto& [textComponent, index] : hitBoxes) {
-            if (textComponent->getText().getGlobalBounds().contains(mousePosition)) {
+        for (const auto& [hitbox, index] : hitboxes) {
+            if (hitbox.contains(mousePosition)) {
                 toggle_aux = index;
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
                     handleAction(index);
             }
         }
 
-        play.getText().setFillColor(toggle_aux == 1 ? RED : YELLOW);
-        leaderboard.getText().setFillColor(toggle_aux == 2 ? RED : YELLOW);
-        quit.getText().setFillColor(toggle_aux == 3 ? RED : YELLOW);
+        play.setColor(toggle_aux == 1 ? RED : YELLOW);
+        leaderboard.setColor(toggle_aux == 2 ? RED : YELLOW);
+        quit.setColor(toggle_aux == 3 ? RED : YELLOW);
     }
 
     void handleAction(int index);
