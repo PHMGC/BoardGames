@@ -6,11 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
 add_executable(BoardGames src/main.cpp
-        include/Game.hpp
-        include/Board.hpp
-        include/TicTacToe.hpp
-        include/GameManager.hpp
-        include/Piece.hpp
+        src/UI/MenuScene.cpp
+        src/UI/LoginScene.cpp
 )
 
 ## Adding SFML project to build
