@@ -11,7 +11,7 @@ public:
     sf::RectangleShape box;
     sf::Text text;
     std::string input;
-	size_t MAX_INPUT = 23;
+	size_t MAX_INPUT_SIZE = 23;
 	sf::Sprite enter;
 	sf::Texture enterT;
 	sf::Sprite checkmark;
@@ -71,7 +71,7 @@ public:
     	if (typedChar == '\b' && !input.empty()) {
     		input.pop_back();
     	} else if (std::isprint(typedChar)) {
-    		if (input.size() < MAX_INPUT) {
+    		if (input.size() < MAX_INPUT_SIZE) {
     			input += typedChar;
     		}
     	}
