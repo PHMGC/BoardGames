@@ -5,16 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-add_executable(BoardGames src/main.cpp
-        #src/UI/MenuScene.cpp
-        #src/UI/LoginScene.cpp
-)
-
-## Adding SFML project to build
-add_subdirectory(SFML)
-#
-## SFML library linkage
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
+add_executable(BoardGames src/main.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
