@@ -7,8 +7,8 @@
 
 class Lig4Piece final : public Piece {
 public:
-    explicit Lig4Piece(const Player player)
-        : Piece(player == Player::One ? 'X' : 'O', player) {}
+    explicit Lig4Piece(const int turn, const std::string& player)
+        : Piece(turn, player) {}
 
     [[nodiscard]] bool isValidMove(std::array<size_t, 2> startPos , std::array<size_t, 2> endPos) const override {
         return true;
@@ -17,24 +17,34 @@ public:
 
 class Lig4 final : public Game {
 public:
-    Lig4() : Game({7, 6}, "Lig4") {}
-
-    void initialize() override {
-        std::cout << "Bem-vindo ao Lig4!\n";
-        this->board.print();
-    }
+    explicit Lig4() : Game({7, 6}, "Lig4") {}
 
     bool playTurn() override {
-        std::cout << "Jogador " << static_cast<int>(currentPlayer) << ", escolha sua jogada (coluna): ";
-        char input;
+        std::cout << "Turno de " << players[turn] << ": envie sua jogada (<coluna>), ou SAIR para sair: ";
+        std::string input;
         std::cin >> input;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        // Permitir o comando como upper ou lowercase
+        for (char& c : input) {
+            c = std::toupper(c);
+        }
+        if (input == "SAIR") {
+            isRunning = false;
+            return true;
+        }
+        if (input.size() != 1) {
+            std::cout << "Jogada invalida: " << "\n";
+            std::cout << "Tente novamente.\n";
+            return false;
+        }
+
         try {
-            const size_t col = this->board.parseColInput(input);
+            const size_t col = this->board.parseColInput(input[0]);
             this->placePieceOnCol(col);
             return true;
         } catch (std::exception& e) {
-            std::cout << "Jogada invalida: " << e.what() << "\n";
+            std::cout << "Movimento invalido: " << e.what() << "\n";
             std::cout << "Tente novamente.\n";
             return false;
         }
@@ -43,7 +53,7 @@ public:
     void placePieceOnCol(const size_t col) {
         for (size_t y = this->board.getSize()[1]; y-- > 0;) { // Correção para evitar underflow
             if (!board.get({col, y})) {
-                board.set({col, y}, std::make_shared<Lig4Piece>(currentPlayer));
+                board.set({col, y}, std::make_shared<Lig4Piece>(turn, players[turn]));
                 return;
             }
         }

@@ -22,6 +22,10 @@
 // }
 
 int main() {
+#ifdef _WIN32
+    // Habilitar acentos no terminal do Windows
+    //std::system("chcp 65001 > nul");
+#endif
     // // Proporção fixa 16:9
     // constexpr float aspectRatio = 16.0f / 9.0f;
     //

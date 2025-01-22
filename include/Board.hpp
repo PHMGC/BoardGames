@@ -92,7 +92,7 @@ public:
 
         // Valida o formato do input
         if (!std::regex_match(input, pattern)) {
-            throw std::invalid_argument("Formato invalido: esperado 'CN' (ex: A1 ou a1).");
+            throw std::invalid_argument("ERRO: Movimento incorreto.");
         }
 
         std::array<size_t, 2> pos{};

@@ -13,7 +13,8 @@
 class GameManager {
     std::vector<std::unique_ptr<Game>> games; // Lista de jogos disponíveis
     SaveManager save_manager;
-    std::string player1, player2;
+
+    bool isRunning = true;
 
 public:
     GameManager() {
@@ -23,14 +24,19 @@ public:
         games.push_back(std::make_unique<Reversi>());
     }
 
-    static void playGame(Game& game) {
-        game.initialize();
+    void playGame(Game& game, const std::vector<std::string>& players) {
+        game.initialize(players);
         while (true) {
             if (game.playTurn()) {
                 if (game.isOver()) { // Verifica vitória ou empate após jogada válida
+                    if (game.isWin()) {
+                        save_manager.setWinrate(game.getWinner(), game.getName(), true);
+                        save_manager.setWinrate(game.getLoser(), game.getName(), false);
+                    }
                     game.board.print();
                     game.board.reset();
                     std::cout << "Jogo encerrado." << std::endl;
+                    std::cout << "Para exibir os comandos disponiveis, use o comando H" << std::endl;
                     break;
                 }
                 game.changeTurn();
@@ -44,12 +50,18 @@ public:
         for (size_t i = 0; i < words.size(); i++) {
             if (i >= startIndex) {
                 substring += words[i];
+                substring += " ";
             }
         }
         return substring;
     }
 
-    static size_t parseGameIndex(const std::string& symbol) {
+    static size_t parseGameIndex(std::string& symbol) {
+        // Permitir o comando como upper ou lowercase
+        for (char& c : symbol) {
+            c = std::toupper(c);
+        }
+
         // Jogo da Velha
         if (symbol == "V") {
             return 0;
@@ -66,14 +78,14 @@ public:
         return -1;
     }
 
-    void parseCommand(const std::string& command) {
-        std::istringstream stream(command);
+    void parseCommand(const std::string& input) {
+        std::istringstream stream(input);
         std::string word;
         std::vector<std::string> words;
         while (stream >> word) {
             words.push_back(word);
         }
-        // Permitir o input como upper ou lowercase
+        // Permitir o comando como upper ou lowercase
         for (char& c : words[0]) {
             c = std::toupper(c);
         }
@@ -95,31 +107,32 @@ public:
             // LJ [A|N]
             // TODO: entender essa merda aqui
             // Ele não especifica nas instruções que deve ser impresso apenas o jogador do input
-            if (words.size() >= 2 && words[0] == "LJ") {
+            if (words.size() == 1 && words[0] == "LJ") {
                 save_manager.leaderboard();
                 return;
             }
             // Executar partida
-
+            // EP <Jogo: (R|L|V)> <Apelido Jogador 1> <Apelido Jogador 2>
             if (words.size() == 4 && words[0] == "EP") {
+                std::string player1 = words[2];
+                std::string player2 = words[3];
                 const size_t gameIndex = parseGameIndex(words[1]);
                 if (gameIndex == -1) {
                     throw std::invalid_argument("ERRO: Jogo invalido");
                 }
-                if (!save_manager.isPlayer(words[2]) && !save_manager.isPlayer(words[3])) {
+                if (!save_manager.isPlayer(player1) && !save_manager.isPlayer(player2)) {
                     throw std::invalid_argument("ERRO: Jogador 1 e Jogador 2 inexistentes");
-                } if (!save_manager.isPlayer(words[2])) {
+                } if (!save_manager.isPlayer(player1)) {
                     throw std::invalid_argument("ERRO: Jogador 1 inexistente");
-                } if (!save_manager.isPlayer(words[3])) {
+                } if (!save_manager.isPlayer(player2)) {
                     throw std::invalid_argument("ERRO: Jogador 2 inexistente");
                 }
-                player1 = words[2];
-                player2 = words[3];
-                playGame(*this->games[gameIndex]);
+                playGame(*this->games[gameIndex], {player1, player2});
                 return;
             }
             if (words.size() == 1 && words[0] == "FS") {
-                std::exit(0);
+                isRunning = false;
+                return;
             }
             if (words.size() == 1 && words[0] == "H") {
                 printCommands();
@@ -129,19 +142,20 @@ public:
         throw std::invalid_argument("ERRO: Comando invalido");
     }
 
-    void printCommands() {
+    static void printCommands() {
         std::cout << "Cadastrar Jogador: CJ <Apelido> <Nome>" << std::endl;
         std::cout << "Remover Jogador: RJ <Apelido>" << std::endl;
         std::cout << "Listar jogadores: LJ [A|N]" << std::endl;
         std::cout << "Executar Partida: EP <Jogo: (R|L|V)> <Apelido Jogador 1> <Apelido Jogador 2>" << std::endl;
         std::cout << "Finalizar sistema: FS" << std::endl;
         std::cout << "Imprimir todos os comandos disponiveis: H" << std::endl;
+        std::cout << "Observacao: os comandos nao sao case sensitive" << std::endl;
     }
 
     void run() {
-        std::cout << "Bem-vindo a Board Games!" << std::endl;
+        std::cout << "Bem-vindos a Board Games!" << std::endl;
         std::cout << "Para exibir os comandos disponiveis, use o comando H" << std::endl;
-        while (true) {
+        while (isRunning) {
             std::string input;
             std::getline(std::cin, input);
             try {

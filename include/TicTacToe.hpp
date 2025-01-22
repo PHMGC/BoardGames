@@ -6,8 +6,8 @@
 
 class TTTPiece final : public Piece {
 public:
-    explicit TTTPiece(const Player player)
-        : Piece(player == Player::One ? 'X' : 'O', player) {}
+    explicit TTTPiece(const int turn, const std::string &player)
+        : Piece(turn, player) {}
 
     [[nodiscard]] bool isValidMove(std::array<size_t, 2> startPos , std::array<size_t, 2> endPos) const override {
         return true;
@@ -17,24 +17,30 @@ public:
 class TicTacToe final : public Game
 {
 public:
-    TicTacToe() : Game({3, 3}, "TicTacToe") {}
-
-    void initialize() override {
-        std::cout << "Bem-vindo ao Jogo da Velha!\n";
-        this->board.print();
-    }
+    explicit TicTacToe() : Game({3, 3}, "TicTacToe") {}
 
     bool playTurn() override {
-        std::cout << "Jogador " << static_cast<int>(currentPlayer) << ", escolha sua jogada (linha e coluna): ";
+        std::cout << "Turno de " << players[turn] << ": envie sua jogada (<coluna><linha>), ou SAIR para sair: ";
         std::string input;
         std::getline(std::cin, input);
+
+        // Permitir o comando como upper ou lowercase
+        for (char& c : input) {
+            c = std::toupper(c);
+        }
+        if (input == "SAIR") {
+            isRunning = false;
+            return true;
+        }
+
         try {
             const std::array<size_t, 2> pos = this->board.parsePosInput(input);
             if (board.get(pos)) {
                 std::cout << "Espaco ocupado. Tente novamente.\n";
                 return false;
             }
-            board.set(pos, std::make_shared<TTTPiece>(currentPlayer));
+
+            board.set(pos, std::make_shared<TTTPiece>(turn, players[turn]));
             return true;
         } catch (std::exception& e) {
             std::cout << "Jogada invalida: " << e.what() << "\n";

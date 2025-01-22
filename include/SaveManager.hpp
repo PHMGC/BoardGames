@@ -21,15 +21,14 @@ class SaveManager {
    		// Verificar se o arquivo foi aberto com sucesso
    		if (!file.is_open()) {
         	std::ofstream newFile(this->filename);
-                if (!newFile.is_open()) {
-                  throw std::runtime_error("ERRO: Nao foi possivel criar banco de dados");
-                }
-                else{
-                  std::cout << "Banco de dados nao encontrado. Criando um novo." << std::endl;
-                }
+            if (!newFile.is_open()) {
+            	throw std::runtime_error("ERRO: Nao foi possivel criar banco de dados");
+            }
+			file = std::move(newFile);
+			std::cout << "Criando um novo banco de dados" << std::endl;
    		}
    		// Escrever cabeçalho
-   		file << "Apelido,Nome,Jogo,Vitórias,Derrotas\n";
+   		file << "Apelido,Nome,Jogo,Vitorias,Derrotas\n";
 
    		// Iterar sobre os dados e escrever no arquivo
    		for (const auto &[apelido, pairData] : data) {
@@ -46,44 +45,44 @@ class SaveManager {
 
    }
    void load(){
-		std::ifstream file(this->filename);
-		// Verificar se o arquivo foi aberto com sucesso
-		if (!file.is_open()) {
-   			std::cout << "Banco de dados nao encontrado. Dados nao foram carregados." << std::endl;
-            return;
+	std::ifstream file(this->filename);
+	// Verificar se o arquivo foi aberto com sucesso
+	if (!file.is_open()) {
+   		std::cout << "Banco de dados nao encontrado. Dados nao foram carregados." << std::endl;
+          return;
+   	}
+	std::string line;
+	bool isHeader = true; // Ignorar o cabeçalho
+
+	while (std::getline(file, line)) {
+   		// Ignorar a primeira linha (cabeçalho)
+   		if (isHeader) {
+   			isHeader = false;
+   			continue;
    		}
-		std::string line;
-		bool isHeader = true; // Ignorar o cabeçalho
 
-		while (std::getline(file, line)) {
-   			// Ignorar a primeira linha (cabeçalho)
-   			if (isHeader) {
-   				isHeader = false;
-   				continue;
-   			}
+   		std::stringstream ss(line);
+   		std::string apelido, nome, jogo, vitoriasStr, derrotasStr;
 
-   			std::stringstream ss(line);
-   			std::string apelido, nome, jogo, vitoriasStr, derrotasStr;
+   		// Ler campos separados por vírgula
+   		if (std::getline(ss, apelido, ',') &&
+		   std::getline(ss, nome, ',') &&
+		   std::getline(ss, jogo, ',') &&
+		   std::getline(ss, vitoriasStr, ',') &&
+		   std::getline(ss, derrotasStr, ',')) {
 
-   			// Ler campos separados por vírgula
-   			if (std::getline(ss, apelido, ',') &&
-				   std::getline(ss, nome, ',') &&
-				   std::getline(ss, jogo, ',') &&
-				   std::getline(ss, vitoriasStr, ',') &&
-				   std::getline(ss, derrotasStr, ',')) {
+   			// Converter vitórias e derrotas para inteiros
+   			int vitorias = std::stoi(vitoriasStr);
+   			int derrotas = std::stoi(derrotasStr);
 
-   				// Converter vitórias e derrotas para inteiros
-   				int vitorias = std::stoi(vitoriasStr);
-   				int derrotas = std::stoi(derrotasStr);
+   			// Inserir os dados no mapa
+   			data[apelido].first = nome; // Nome
+   			data[apelido].second[jogo] = {vitorias, derrotas}; // Jogo e winrate
+			   }
+	}
 
-   				// Inserir os dados no mapa
-   				data[apelido].first = nome; // Nome
-   				data[apelido].second[jogo] = {vitorias, derrotas}; // Jogo e winrate
-				   }
-		}
-
-		file.close();
-		std::cout << "Dados carregados do arquivo " << filename << " com sucesso!" << std::endl;
+	file.close();
+	std::cout << "Dados carregados do arquivo " << filename << " com sucesso!" << std::endl;
    }
 
 public:
@@ -95,10 +94,11 @@ public:
 	}
 
     void setPlayer(const std::string& nickname, const std::string &name){
-    	if (!data.contains(nickname)) {
-    		data[nickname].first = name;
+    	if (data.contains(nickname)) {
+    		throw std::invalid_argument("ERRO: Jogador repetido");
     	}
-        throw std::invalid_argument("ERRO: Jogador repetido");
+    	data[nickname].first = name;
+    	std::cout << "Jogador " << nickname << " cadastrado com sucesso" << std::endl;
     }
 
     auto getPlayer(const std::string& nickname){
@@ -109,43 +109,38 @@ public:
     }
 
     void removePlayer(const std::string& nickname){
-      	if (data.contains(nickname)) {
-    		data.erase(nickname);
+      	if (!data.contains(nickname)) {
+      		throw std::invalid_argument("ERRO: Jogador inexistente");
       	}
-      	throw std::invalid_argument("ERRO: Jogador inexistente");
+    		data.erase(nickname);
+      		std::cout << "Jogador " << nickname << " removido com sucesso" << std::endl;
     }
 
-	bool isPlayer(const std::string& nickname) {
+	bool isPlayer(const std::string& nickname) const {
 		return data.contains(nickname);
 	}
 
-    void setWinrate(const std::string& nickname, const std::string& game, const bool isWin){
-		const auto itPlayer = data.find(nickname);
-		if (itPlayer == data.end()) {
+    void setWinrate(const std::string& nickname, const std::string& game, const bool isWinner){
+		if (!data.contains(nickname)) {
 			throw std::invalid_argument("ERRO: Jogador inexistente");
 		}
 
-		auto &games = itPlayer->second.second;
-		const auto itGame = games.find(game);
-
-		if (itGame == games.end()) {
-			// Caso o jogador não tenha jogado o jogo, inicialize com valores padrão
-			games[game] = {0, 0};
+		if (!data[nickname].second.contains(game)) {
+			data[nickname].second[game] = {0, 0};
 		}
 
-		auto &winrate = games[game];
-		if (isWin) {
-			winrate[0]++;
+		if (isWinner) {
+			data[nickname].second[game][0]++;
 		} else {
-			winrate[1]++;
+			data[nickname].second[game][1]++;
 		}
 	}
 
 	void leaderboard(){
         for(const auto &[nickname, info] : data){
-        	std::cout << nickname << info.first << std::endl;
+        	std::cout << nickname << ", " << info.first << std::endl;
        		for(const auto &[game, winrate] : info.second){
-        		std::cout << game << " " << winrate[0] << " " << winrate[1] << std::endl;
+        		std::cout << game << " - V: " << winrate[0] << " D: " << winrate[1] << std::endl;
             }
         }
 	}

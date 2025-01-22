@@ -8,24 +8,36 @@
 class Game {
 protected:
     std::string name;
-    Player currentPlayer;
+    std::vector<std::string> players;
+    int turn = 0;
+    bool isRunning = false;
 public:
     Board board;
-    Game(const std::array<size_t,2> size, std::string name, const Player firstPlayer = Player::One)
-    : name(std::move(name)), currentPlayer(firstPlayer), board(size) {}
+    Game(const std::array<size_t,2> size, std::string name)
+    : name(std::move(name)), board(size) {}
 
     virtual ~Game() = default;
 
     std::string getName() { return this->name; }
 
+    virtual void initialize(const std::vector<std::string> &players) {
+        this->isRunning = true;
+        this->players = players;
+        std::cout << "Bem-vindos ao " << this->getName() << "!\n";
+        this->board.print();
+    }
+
     void changeTurn()
     {
-        this->currentPlayer = currentPlayer == Player::One ? Player::Two : Player::One;
+        const std::string temp = players[0];
+        players[0] = players[1];
+        players[1] = temp;
+        turn = turn == 0 ? 1 : 0;
     }
     virtual bool isOver()
     {
         if (isWin()) {
-            std::cout << "Jogador " << static_cast<int>(currentPlayer) << " venceu!\n";
+            std::cout << "Jogador " << players[turn] << " venceu!\n";
             return true;
         }
         if (isDraw())
@@ -33,7 +45,15 @@ public:
             std::cout << "Empate!\n";
             return true;
         }
-        return false;
+        return !isRunning;
+    }
+
+    virtual std::string getWinner() {
+        return this->players[turn];
+    }
+
+    virtual std::string getLoser() {
+        return this->players[turn == 0 ? 1 : 0];
     }
 
     virtual bool parsePlace(const std::string& input, std::array<size_t, 2> &pos)
@@ -82,8 +102,6 @@ public:
 
 
     // Pure virtual methods
-    virtual void initialize() = 0;
-
     virtual bool playTurn() = 0;
 
     virtual bool isWin() = 0;
