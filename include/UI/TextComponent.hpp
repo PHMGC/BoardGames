@@ -9,7 +9,7 @@ constexpr sf::Color BLACK(0,0,0,255);
 constexpr sf::Color BLUE(54,89,185,0);
 constexpr sf::Color PINK(246,115,200,200);
 constexpr sf::Color RED(214,61,60,255);
-constexpr sf::Color GRAY(210, 215, 211, 255);
+constexpr sf::Color GRAY(201, 201, 201, 255);
 
 class TextComponent {
 	sf::Text text;
@@ -19,6 +19,8 @@ class TextComponent {
 	sf::Vector2f pos;
 	std::vector<sf::Color> colors;
 	std::vector<float> shadows_offset;
+	bool enabled = true;
+	bool hover = false;
 
 public:
 	TextComponent(const std::string& textStr, const sf::Font &font, const int size,
@@ -66,6 +68,33 @@ public:
 		this->text.setFillColor(color);
 	}
 
+	void setEnabled(bool enable) {
+		if (enable) {
+			this->text.setFillColor(this->colors[0]);
+			this->shadows[0].setFillColor(this->colors[1]);
+			this->shadows[1].setFillColor(this->colors[2]);
+		}
+		else {
+			this->text.setFillColor(GRAY);
+			this->shadows[0].setFillColor(BLACK);
+			this->shadows[1].setFillColor(BLACK);
+		}
+		enabled = enable;
+	}
+	bool isEnabled() {
+		return enabled;
+	}
+
+	void setHover(const bool enable) {
+		if (enabled) {
+			enable ? this->setColor(RED) : this->setColor(this->colors[0]);
+		}
+		hover = enable;
+	}
+	bool isHover() {
+		return this->hover;
+	}
+
 	void rotate(const sf::Angle degrees) {
 		this->text.setRotation(degrees);
 		for (auto& shadow : this->shadows) {
@@ -75,8 +104,8 @@ public:
 
 	void draw(sf::RenderTarget& window) {
 		// Desenhar sombras primeiro
-		for (const auto& shadow : this->shadows) {
-			window.draw(shadow);
+		for (int i = shadows.size() - 1; i >= 0; --i) {
+			window.draw(shadows[i]);
 		}
 		// Desenhar texto principal
 		window.draw(this->text);

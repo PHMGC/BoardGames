@@ -11,17 +11,24 @@
 #include "SaveManager.hpp"
 
 class GameManager {
-    std::vector<std::unique_ptr<Game>> games; // Lista de jogos disponíveis
+    std::vector<std::unique_ptr<Game>> games;
     SaveManager save_manager;
 
     bool isRunning = true;
 
 public:
-    GameManager() {
-        // Adicione jogos disponíveis ao vetor
+    GameManager() : save_manager(init()) {}
+
+    std::vector<std::string> init() {
         games.push_back(std::make_unique<TicTacToe>());
         games.push_back(std::make_unique<Lig4>());
         games.push_back(std::make_unique<Reversi>());
+
+        std::vector<std::string> gameNames;
+        for (const auto& game : games) {
+            gameNames.push_back(game->getName());
+        }
+        return gameNames;
     }
 
     void playGame(Game& game, const std::vector<std::string>& players) {
@@ -50,7 +57,9 @@ public:
         for (size_t i = 0; i < words.size(); i++) {
             if (i >= startIndex) {
                 substring += words[i];
-                substring += " ";
+                if (i < words.size() - 1) {
+                    substring += " ";
+                }
             }
         }
         return substring;
@@ -105,11 +114,15 @@ public:
             }
             // Listar jogadores (leaderboard)
             // LJ [A|N]
-            // TODO: entender essa merda aqui
-            // Ele não especifica nas instruções que deve ser impresso apenas o jogador do input
-            if (words.size() == 1 && words[0] == "LJ") {
-                save_manager.leaderboard();
-                return;
+            if (words.size() == 2 && words[0] == "LJ") {
+                if (words[1] == "A" || words[1] == "a") {
+                    save_manager.leaderboard(true);
+                    return;
+                }
+                if (words[1] == "N" || words[1] == "n") {
+                    save_manager.leaderboard(false);
+                    return;
+                }
             }
             // Executar partida
             // EP <Jogo: (R|L|V)> <Apelido Jogador 1> <Apelido Jogador 2>
@@ -143,7 +156,7 @@ public:
     }
 
     static void printCommands() {
-        std::cout << "Cadastrar Jogador: CJ <Apelido> <Nome>" << std::endl;
+        std::cout << "Cadastrar Jogador: CJ <Apelido (alfanumerico)> <Nome (alfanumerico + espacos)>" << std::endl;
         std::cout << "Remover Jogador: RJ <Apelido>" << std::endl;
         std::cout << "Listar jogadores: LJ [A|N]" << std::endl;
         std::cout << "Executar Partida: EP <Jogo: (R|L|V)> <Apelido Jogador 1> <Apelido Jogador 2>" << std::endl;

@@ -29,9 +29,6 @@ public:
 
     void changeTurn()
     {
-        const std::string temp = players[0];
-        players[0] = players[1];
-        players[1] = temp;
         turn = turn == 0 ? 1 : 0;
     }
     virtual bool isOver()

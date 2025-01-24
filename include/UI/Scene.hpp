@@ -35,5 +35,5 @@ public:
 
 	virtual ~Scene() = default;
 	virtual void handleEvents(std::optional<sf::Event> event) = 0;
-	virtual void draw() = 0;
+	virtual void update() = 0;
 };

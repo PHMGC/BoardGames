@@ -25,7 +25,6 @@ public:
     }
 
     void handleEvents(const std::optional<sf::Event> event) override {
-        auto mousePosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
 		std::vector<std::pair<sf::FloatRect, int>> hitboxes = {
             {play.getHitbox(),        1},
             {leaderboard.getHitbox(), 2},
@@ -42,14 +41,6 @@ public:
         }
         toggle_aux = std::clamp(toggle_aux, 1, static_cast<int>(hitboxes.size()));
 
-        for (const auto& [hitbox, index] : hitboxes) {
-            if (hitbox.contains(mousePosition)) {
-                toggle_aux = index;
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-                    handleAction(index);
-            }
-        }
-
         play.setColor(toggle_aux == 1 ? RED : YELLOW);
         leaderboard.setColor(toggle_aux == 2 ? RED : YELLOW);
         quit.setColor(toggle_aux == 3 ? RED : YELLOW);
@@ -57,7 +48,7 @@ public:
 
     void handleAction(int index);
 
-    void draw() override {
+    void update() override {
         window.clear();
 
         window.draw(backgroundSprite);

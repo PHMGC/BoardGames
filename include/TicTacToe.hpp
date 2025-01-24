@@ -17,7 +17,7 @@ public:
 class TicTacToe final : public Game
 {
 public:
-    explicit TicTacToe() : Game({3, 3}, "TicTacToe") {}
+    explicit TicTacToe() : Game({3, 3}, "Jogo da Velha") {}
 
     bool playTurn() override {
         std::cout << "Turno de " << players[turn] << ": envie sua jogada (<coluna><linha>), ou SAIR para sair: ";

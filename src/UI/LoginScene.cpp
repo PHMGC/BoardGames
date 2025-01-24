@@ -3,12 +3,23 @@
 
 #include "UI/LoginScene.hpp"
 
-void LoginScene::handleAction(const int index) {
-    switch (index) {
-    case 3:
-    	scene_manager->setCurrentScene(SceneType::MENU);
-    	break;
-    default:
-    	break;
+void LoginScene::handleAction() {
+	if (currentIndex == 0) {
+		player1.setTyping(true);
+		player2.setTyping(false);
+	}
+	if (currentIndex == 1) {
+		player1.setTyping(false);
+		player2.setTyping(true);
+	}
+
+    if (currentIndex == 2) {
+    	if (next.isEnabled()) {
+    		//scene_manager->setCurrentScene(SceneType::GAME_SELECTION);
+    		std::cout << "Game Selection" << std::endl;
+    	}
+    }
+	if (currentIndex == maxIndex) {
+		scene_manager->setCurrentScene(SceneType::MENU);
     }
 }

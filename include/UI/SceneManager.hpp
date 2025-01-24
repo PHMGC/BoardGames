@@ -8,7 +8,7 @@
 #include "MenuScene.hpp"
 #include "LoginScene.hpp"
 
-enum class SceneType { MENU, LOGIN, TICTACTOE, REVERSI, LIG4 };
+enum class SceneType { MENU, LOGIN, GAME_SELECTION, TICTACTOE, REVERSI, LIG4 };
 
 inline std::string scene2String(const SceneType sceneType) {
 	switch (sceneType) {
@@ -16,6 +16,8 @@ inline std::string scene2String(const SceneType sceneType) {
 		return "Menu";
 	case SceneType::LOGIN:
 		return "Login";
+	case SceneType::GAME_SELECTION:
+		return "Game Selection";
 	case SceneType::TICTACTOE:
 		return "TicTacToe";
 	case SceneType::REVERSI:
@@ -35,6 +37,7 @@ public:
 	explicit SceneManager(sf::RenderWindow& window) {
 		scenes[SceneType::MENU] = std::make_unique<MenuScene>(window, this, "../assets/joystix.otf", "../assets/menu.png");
 		scenes[SceneType::LOGIN] = std::make_unique<LoginScene>(window, this, "../assets/joystix.otf", "../assets/menu.png");
+		scenes[SceneType::GAME_SELECTION] = std::make_unique<MenuScene>(window, this, "../assets/joystix.otf", "../assets/menu.png");
 
 		currentScene = SceneType::LOGIN;
 	}
@@ -58,9 +61,9 @@ public:
 		}
 	}
 
-	void draw() {
+	void update() {
 		if (scenes[currentScene]) {
-			scenes[currentScene]->draw();
+			scenes[currentScene]->update();
 		}
 	}
 };
