@@ -4,12 +4,14 @@
 
 
 int main() {
+    GameManager gameManager;
+
     sf::RenderWindow window(sf::VideoMode({1280, 720}), "Board Games", sf::Style::Titlebar | sf::Style::Close);
 
     window.setVerticalSyncEnabled(true);
     window.setFramerateLimit(60);
 
-    SceneManager scene_manager(window);
+    SceneManager sceneManager(gameManager, window);
 
     while (window.isOpen()) {
         // Processar eventos
@@ -17,14 +19,10 @@ int main() {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
-            scene_manager.getCurrentScene().handleEvents(event);
+            sceneManager.getCurrentScene().handleEvents(event);
         }
-        scene_manager.getCurrentScene().update();
+        sceneManager.draw();
     }
-
-    // GameManager game_manager;
-    // game_manager.run();
-
 
     return 0;
 }

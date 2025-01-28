@@ -99,7 +99,7 @@ public:
 
 	static bool isFormatValid(const std::string& str) {
 		for (const char c : str) {
-			if (c != ' ' && !std::isprint(c)) {
+			if (c != ' ' && !std::isprint(c) || c == ',') {
 				return false;
 			}
 		}
@@ -137,8 +137,11 @@ public:
 			std::cout << "Jogador " << nickname << " removido com sucesso" << std::endl;
 	}
 
-	bool isPlayer(const std::string& nickname) const {
-		return data.contains(nickname);
+	[[nodiscard]] bool isPlayer(const std::string& nickname) const {
+		if (isFormatValid(nickname)) {
+			return data.contains(nickname);
+		}
+		return false;
 	}
 
     void setWinrate(const std::string& nickname, const std::string& game, const bool isWinner){

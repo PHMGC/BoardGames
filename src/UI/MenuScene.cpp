@@ -5,8 +5,11 @@
 
 void MenuScene::handleAction(int index) {
     	switch (index) {
+    	case 0:
+    		sceneManager->setCurrentScene(SceneType::LOGIN);
+    		break;
     	case 1:
-    		scene_manager->setCurrentScene(SceneType::LOGIN);
+    		sceneManager->setCurrentScene(SceneType::SIGNUP);
     		break;
     	case 2:
     		std::cout << "Leaderboard acionado!" << std::endl;

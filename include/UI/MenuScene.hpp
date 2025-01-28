@@ -2,63 +2,48 @@
 
 #include "Scene.hpp"
 #include "TextComponent.hpp"
+#include "ParallaxComponent.hpp"
 
 class MenuScene final : public Scene {
-    TextComponent title1;
-    TextComponent title2;
     TextComponent play;
+    TextComponent signup;
     TextComponent leaderboard;
     TextComponent quit;
 
-    int toggle_aux = 1;
+    int currentIndex = 0;
 
 public:
-    MenuScene(sf::RenderWindow& window, SceneManager* scene_manager, const std::string& font_path, const std::string& background_path)
-    : Scene(window, scene_manager, font_path, background_path),
-        title1("BOARD",           font, 65, {460, 80},  {4, 8}),
-        title2("GAMES",           font, 60, {559, 155}, {4, 8}),
-        play  ("PLAY",            font, 38, {575, 300}, {2, 4}),
-        leaderboard("LEADERBOARD",font, 32, {490, 404}, {2, 4}),
-        quit("QUIT",              font, 32, {590, 506}, {2, 4})
-    {
-        title2.rotate(sf::degrees(-7));
-    }
+    MenuScene(GameManager& gameManager, sf::RenderWindow& window, SceneManager* sceneManager, const std::string& font_path)
+    : Scene(gameManager, window, sceneManager, font_path),
+        play  ("Jogar",       font, 38, {550, 350}, {2, 4}),
+        signup("Cadastro",    font, 38, {485, 425}, {2, 4}),
+        leaderboard("Placar", font, 32, {550, 500}, {2, 4}),
+        quit("Sair",          font, 32, {570, 575}, {2, 4})
+    {}
 
     void handleEvents(const std::optional<sf::Event> event) override {
-		std::vector<std::pair<sf::FloatRect, int>> hitboxes = {
-            {play.getHitbox(),        1},
-            {leaderboard.getHitbox(), 2},
-            {quit.getHitbox(),        3}
-        };
-
         if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->scancode == sf::Keyboard::Scancode::Up)
-                toggle_aux--;
+                currentIndex--;
             else if (keyPressed->scancode == sf::Keyboard::Scancode::Down)
-                toggle_aux++;
+                currentIndex++;
             else if (keyPressed->scancode == sf::Keyboard::Scancode::Enter)
-                handleAction(toggle_aux);
+                handleAction(currentIndex);
         }
-        toggle_aux = std::clamp(toggle_aux, 1, static_cast<int>(hitboxes.size()));
+        currentIndex = std::clamp(currentIndex, 0, 3);
 
-        play.setColor(toggle_aux == 1 ? RED : YELLOW);
-        leaderboard.setColor(toggle_aux == 2 ? RED : YELLOW);
-        quit.setColor(toggle_aux == 3 ? RED : YELLOW);
+        play.setColor(currentIndex == 0 ? RED : YELLOW);
+        signup.setColor(currentIndex == 1 ? RED : YELLOW);
+        leaderboard.setColor(currentIndex == 2 ? RED : YELLOW);
+        quit.setColor(currentIndex == 3 ? RED : YELLOW);
     }
 
     void handleAction(int index);
 
-    void update() override {
-        window.clear();
-
-        window.draw(backgroundSprite);
-
-        title1.draw(window);
-        title2.draw(window);
+    void draw() override {
         play.draw(window);
+        signup.draw(window);
         leaderboard.draw(window);
         quit.draw(window);
-
-        window.display();
     }
 };

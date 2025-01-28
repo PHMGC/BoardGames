@@ -12,12 +12,12 @@
 
 class GameManager {
     std::vector<std::unique_ptr<Game>> games;
-    SaveManager save_manager;
 
     bool isRunning = true;
 
 public:
-    GameManager() : save_manager(init()) {}
+    SaveManager saveManager;
+    GameManager() : saveManager(init()) {}
 
     std::vector<std::string> init() {
         games.push_back(std::make_unique<TicTacToe>());
@@ -37,8 +37,8 @@ public:
             if (game.playTurn()) {
                 if (game.isOver()) { // Verifica vitória ou empate após jogada válida
                     if (game.isWin()) {
-                        save_manager.setWinrate(game.getWinner(), game.getName(), true);
-                        save_manager.setWinrate(game.getLoser(), game.getName(), false);
+                        saveManager.setWinrate(game.getWinner(), game.getName(), true);
+                        saveManager.setWinrate(game.getLoser(), game.getName(), false);
                     }
                     game.board.print();
                     game.board.reset();
@@ -103,24 +103,24 @@ public:
             // Cadastrar jogador
             // CJ <Apelido> <Nome>
             if (words.size() > 2 && words[0] == "CJ") {
-                save_manager.setPlayer(words[1], getSubString(words, 2));
+                saveManager.setPlayer(words[1], getSubString(words, 2));
                 return;
             }
             // Remover jogador
             // RJ <Apelido>
             if (words.size() == 2 && words[0] == "RJ") {
-                save_manager.removePlayer(words[1]);
+                saveManager.removePlayer(words[1]);
                 return;
             }
             // Listar jogadores (leaderboard)
             // LJ [A|N]
             if (words.size() == 2 && words[0] == "LJ") {
                 if (words[1] == "A" || words[1] == "a") {
-                    save_manager.leaderboard(true);
+                    saveManager.leaderboard(true);
                     return;
                 }
                 if (words[1] == "N" || words[1] == "n") {
-                    save_manager.leaderboard(false);
+                    saveManager.leaderboard(false);
                     return;
                 }
             }
@@ -133,11 +133,11 @@ public:
                 if (gameIndex == -1) {
                     throw std::invalid_argument("ERRO: Jogo invalido");
                 }
-                if (!save_manager.isPlayer(player1) && !save_manager.isPlayer(player2)) {
+                if (!saveManager.isPlayer(player1) && !saveManager.isPlayer(player2)) {
                     throw std::invalid_argument("ERRO: Jogador 1 e Jogador 2 inexistentes");
-                } if (!save_manager.isPlayer(player1)) {
+                } if (!saveManager.isPlayer(player1)) {
                     throw std::invalid_argument("ERRO: Jogador 1 inexistente");
-                } if (!save_manager.isPlayer(player2)) {
+                } if (!saveManager.isPlayer(player2)) {
                     throw std::invalid_argument("ERRO: Jogador 2 inexistente");
                 }
                 playGame(*this->games[gameIndex], {player1, player2});

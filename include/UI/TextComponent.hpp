@@ -17,21 +17,25 @@ class TextComponent {
 	sf::Font font;
 	int size;
 	sf::Vector2f pos;
+	sf::Vector2f originalPos;
 	std::vector<sf::Color> colors;
+	std::vector<sf::Color> originalColors;
 	std::vector<float> shadows_offset;
 	bool enabled = true;
 	bool hover = false;
 
 public:
 	TextComponent(const std::string& textStr, const sf::Font &font, const int size,
-		const sf::Vector2f& pos, const std::vector<float>& shadows_offset,
+		const sf::Vector2f pos, const std::vector<float>& shadows_offset,
 		const std::vector<sf::Color>& colors = {YELLOW, ORANGE, BLACK})
 		: text(font),
 		  shadows{sf::Text(font), sf::Text(font)},
 		  font(font),
 		  size(size),
 		  pos(pos),
+		  originalPos(pos),
 		  colors(colors),
+		  originalColors(colors),
 		  shadows_offset(shadows_offset) {
 
 		if (colors.size() != shadows_offset.size() + 1) {
@@ -60,12 +64,36 @@ public:
 		}
 	}
 
+	sf::Vector2f getPos() {
+		return this->pos;
+	}
+
+	void resetPos() {
+		this->pos = this->originalPos;
+		this->text.setPosition(this->pos);
+		for (std::size_t i = 0; i < shadows.size(); ++i) {
+			this->shadows[i].setPosition(sf::Vector2f(this->pos.x + shadows_offset[i], this->pos.y + shadows_offset[i]));
+		}
+	}
+
 	sf::FloatRect getHitbox() {
 		return this->text.getGlobalBounds();
 	}
 
 	void setColor(sf::Color color) {
 		this->text.setFillColor(color);
+	}
+
+	void resetColor() {
+		this->text.setFillColor(originalColors[0]);
+		this->shadows[0].setFillColor(originalColors[1]);
+		this->shadows[1].setFillColor(originalColors[2]);
+	}
+
+	void setText(const std::string& textStr) {
+		this->shadows[0].setString(textStr);
+		this->shadows[1].setString(textStr);
+		this->text.setString(textStr);
 	}
 
 	void setEnabled(bool enable) {
