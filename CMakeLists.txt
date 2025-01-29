@@ -13,6 +13,9 @@ add_executable(BoardGames src/main.cpp
         src/UI/TicTacToeScene.cpp
         src/UI/Lig4Scene.cpp
         src/UI/ReversiScene.cpp
+        src/UI/SceneManager.cpp
+        include/UI/InputContainer.cpp
+        include/UI/InputContainer.hpp
 )
 
 ## Adding SFML project to build

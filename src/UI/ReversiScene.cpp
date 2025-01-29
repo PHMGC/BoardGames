@@ -1,6 +1,6 @@
 #include "UI/ReversiScene.hpp"
 
-#include "UI/SceneManager.hpp"
+//#include "UI/SceneManager.hpp"
 
 void ReversiScene::init() {
 	player1.setText(sceneManager->getCurrentPlayers()[0]);

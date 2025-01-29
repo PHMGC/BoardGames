@@ -4,6 +4,7 @@
 
 #include "Scene.hpp"
 #include "TextComponent.hpp"
+#include "InputContainer.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <string>
