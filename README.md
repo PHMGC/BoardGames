@@ -26,15 +26,15 @@ Este repositório contém o trabalho final da disciplina **Programação e Desen
 
 ## **🎯 Estrutura do Projeto**
     BoardGames/
-    ├── bin/           # Executáveis gerados pela compilação
-    ├── doc/           # Documentação do projeto
-    ├── include/       # Arquivos de cabeçalho (.hpp)
-    ├── obj/           # Arquivos objeto (.o)
-    ├── src/           # Código-fonte (.cpp)
-    ├── tests/         # Testes unitários
-    ├── .gitignore     # Arquivos e pastas ignoradas pelo Git
-    ├── CMakeLists.txt # Automização da compilação
-    ├── README.md      # Este arquivo
+    ├── bin/         # Executáveis gerados pela compilação
+    ├── doc/         # Documentação do projeto
+    ├── include/     # Arquivos de cabeçalho (.hpp)
+    ├── obj/         # Arquivos objeto (.o)
+    ├── src/         # Código-fonte (.cpp)
+    ├── tests/       # Testes unitários
+    ├── .gitignore   # Arquivos e pastas ignoradas pelo Git
+    ├── Makefile     # Automização da compilação
+    ├── README.md    # Este arquivo
 
 ### **Hierarquia de Classes**
 #### **1. Componentes Básicos**
@@ -72,21 +72,18 @@ Este repositório contém o trabalho final da disciplina **Programação e Desen
 
 ---
 
-## 💡 Funcionalidades Extras
-- **Interface gráfica com SFML**:
-    - Fornece uma experiência visual interativa para os jogos.
-- **Implementação de IA**:
-    - Jogador opcional controlado pelo computador.
+## 💡 Funcionalidades Extras (disponível na branch SFML)
+~~- **Interface gráfica com SFML**:~~
+    ~~- Fornece uma experiência visual interativa para os jogos.~~
+~~- **Implementação de IA**:~~
+    ~~- Jogador opcional controlado pelo computador.~~
 
 ## 📋 Requisitos para Compilação
 
 Certifique-se de ter os seguintes componentes instalados antes de compilar o projeto:
 
 1. **Compilador C++**: Recomenda-se o uso do GCC, Clang ou MSVC com suporte a C++17 ou superior.
-2. **CMake**: Ferramenta para gerenciar o processo de build. Baixe em [CMake - Download](https://cmake.org/download/).
-    - Caso esteja em um computador Linux sem acesso ao sudo (como o computador do DCC), utilize o script .sh disponível no link de download acima para instalar localmente.
-3. **GNU Make** (Opcional): Usado para facilitar a automação do build. Instale-o via [GNU Make - Download](https://www.gnu.org/software/make/#download) ou pelo gerenciador de pacotes de seu sistema.
-
+2. **Make**: Ferramenta usada para automação da compilação do projeto.
 ---
 
 ## 🚀 Como Compilar e Executar
@@ -100,37 +97,19 @@ Para começar, clone o repositório no local de sua escolha (certifique-se de te
    ```bash
    cd /caminho/para/BoardGames
    ```
-2. Crie um diretório de build:
-   ```bash
-   mkdir build
-   cd build
-   ```
 
-### 2. Gerar o Build com CMake
-No Linux:
+### 2. Compilar o projeto com Make
 ```bash
-cmake ..
+make
 ```
-No Windows:
-```bash
-cmake .. -G "MinGW Makefiles"
-```
+### 3. Executar o Programa
+O executável será gerado no diretório `bin` com o nome `BoardGames`
 
-### 3. Compilar o Projeto
+### 4. Limpar a compilação
+Caso queira limpar os itens compilados, execute
 ```bash
-cmake --build .
+make clean
 ```
-
-### 4. Executar o Programa
-O executável será gerado no diretório `bin`. Execute-o com:
-```bash
-../bin/BoardGames.exe
-```
-Ou, caso esteja no Windows,
-```bash
-..\bin\BoardGames.exe
-```
-
 ---
 
 ## 🛠 Ambiente de Desenvolvimento Recomendado
@@ -144,13 +123,8 @@ Ou, caso esteja no Windows,
 
 ## 📑 Testes
 
-Os testes foram implementados utilizando a biblioteca `doctest`. Para executar os testes unitários:
-```sh
-make test
-./bin/testes
-```
-
----
+Os testes foram implementados utilizando a biblioteca `doctest`.
+Para executar os testes unitários, acesse o executável `tests` na pasta `bin` após a compilação do projeto.
 
 ## ✨ Autores
 

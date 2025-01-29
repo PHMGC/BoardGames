@@ -1,7 +1,7 @@
 #include "SaveManager.hpp"
 
 SaveManager::SaveManager(const std::vector<std::string>& gamesNames, const std::string& filename)
-    : gamesNames(gamesNames), filename(filename) {
+    : filename(filename), gamesNames(gamesNames) {  // Ordem corrigida
     load();
 }
 
@@ -82,31 +82,31 @@ bool SaveManager::hasNonAlphanumeric(const std::string& str) {
 
 void SaveManager::setPlayer(const std::string &nickname,
                             const std::string &name) {
-  if (hasNonAlphanumeric(nickname) || hasNonAlphanumeric(name)) {
-    throw std::invalid_argument("ERRO: Cadastro invalido");
-  }
-  if (data.contains(nickname)) {
-    throw std::invalid_argument("ERRO: Jogador repetido");
-  }
-  data[nickname].first = name;
+    if (hasNonAlphanumeric(nickname) || hasNonAlphanumeric(name)) {
+        throw std::invalid_argument("ERRO: Cadastro invalido");
+    }
+    if (data.find(nickname) != data.end()) {  // Substituição de .contains() por find()
+        throw std::invalid_argument("ERRO: Jogador repetido");
+    }
+    data[nickname].first = name;
 
-  for (const std::string &gameName : gamesNames) {
-    data[nickname].second[gameName] = {0, 0};
-  }
+    for (const std::string &gameName : gamesNames) {
+        data[nickname].second[gameName] = {0, 0};
+    }
 
-  std::cout << "Jogador " << nickname << " cadastrado com sucesso" << std::endl;
+    std::cout << "Jogador " << nickname << " cadastrado com sucesso" << std::endl;
 }
 
 std::pair<std::string, std::map<std::string, std::array<int, 2>>>
 SaveManager::getPlayer(const std::string &nickname) {
-    if (data.contains(nickname)) {
+    if (data.find(nickname) != data.end()) {  // Substituição de .contains() por find()
         return data[nickname];
     }
     throw std::invalid_argument("ERRO: Jogador inexistente");
 }
 
 void SaveManager::removePlayer(const std::string& nickname) {
-    if (!data.contains(nickname)) {
+    if (data.find(nickname) == data.end()) {  // Substituição de .contains() por find()
         throw std::invalid_argument("ERRO: Jogador inexistente");
     }
     data.erase(nickname);
@@ -114,15 +114,15 @@ void SaveManager::removePlayer(const std::string& nickname) {
 }
 
 bool SaveManager::isPlayer(const std::string& nickname) const {
-    return data.contains(nickname);
+    return data.find(nickname) != data.end();  // Substituição de .contains() por find()
 }
 
 void SaveManager::setWinrate(const std::string& nickname, const std::string& game, const bool isWinner) {
-    if (!data.contains(nickname)) {
+    if (data.find(nickname) == data.end()) {  // Substituição de .contains() por find()
         throw std::invalid_argument("ERRO: Jogador inexistente");
     }
 
-    if (!data[nickname].second.contains(game)) {
+    if (data[nickname].second.find(game) == data[nickname].second.end()) {  // Substituição de .contains() por find()
         throw std::runtime_error("ERRO: Jogo invalido");
     }
 

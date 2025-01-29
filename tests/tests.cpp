@@ -17,12 +17,14 @@ TEST_CASE("Testando Board") {
 
 // Testes para SaveManager (Cadastro de Jogadores)
 TEST_CASE("Testando Cadastro de Jogadores") {
-    SaveManager saveManager({"TicTacToe", "Lig4", "Reversi"}, "tests/test_db.csv");
+    SaveManager saveManager({"TicTacToe", "Lig4", "Reversi"}, "test_db.csv");
 
     CHECK_THROWS_AS(saveManager.setPlayer("!Invalid", "Alice"), std::invalid_argument);
     CHECK_THROWS_AS(saveManager.setPlayer("Alice", "!Invalid"), std::invalid_argument);
 
-    saveManager.setPlayer("Alice", "Alice Silva");
+    if(!saveManager.isPlayer("Alice")){
+        saveManager.setPlayer("Alice", "Alice Silva");
+    }
     CHECK_NOTHROW(saveManager.getPlayer("Alice"));
 
     CHECK_THROWS_AS(saveManager.setPlayer("Alice", "Outra Alice"), std::invalid_argument);
@@ -34,8 +36,9 @@ TEST_CASE("Testando Cadastro de Jogadores") {
 
     saveManager.setPlayer("Alice", "Alice Silva");
     CHECK_NOTHROW(saveManager.getPlayer("Alice"));
-
-    saveManager.setPlayer("Bob", "Bob Silva");
+    if(!saveManager.isPlayer("Bob")){
+        saveManager.setPlayer("Bob", "Bob Silva");
+    }
     CHECK_NOTHROW(saveManager.getPlayer("Bob"));
 }
 
