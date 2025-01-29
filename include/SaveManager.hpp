@@ -7,188 +7,102 @@
 #include <string>
 #include <array>
 #include <iomanip>
+#include <vector>
+#include <stdexcept>
+#include <algorithm>
 
+/**
+ * @class SaveManager
+ * @brief Gerencia a persistência de dados de jogadores e seus winrates em diferentes jogos.
+ */
 class SaveManager {
-	std::map<std::string, // Apelido
-	std::pair<std::string, // Nome
-	std::map<std::string, // Jogo
-	std::array<int, 2>>> // Winrate (vitórias / derrotas)
-	> data;
+private:
+    /**
+     * @brief Estrutura de dados armazenando informações dos jogadores.
+     *
+     * O mapa utiliza:
+     * - `std::string`: Apelido do jogador
+     * - `std::pair<std::string, std::map<std::string, std::array<int, 2>>>`:
+     *   - Primeiro elemento: Nome real do jogador
+     *   - Segundo elemento: Mapa de winrates, onde:
+     *     - `std::string`: Nome do jogo
+     *     - `std::array<int, 2>`: Array contendo vitórias e derrotas
+     */
+    std::map<std::string, std::pair<std::string, std::map<std::string, std::array<int, 2>>>> data;
 
-    std::string filename = "data.csv";
+    std::string filename; ///< Nome do arquivo para salvar e carregar dados.
+    std::vector<std::string> gamesNames; ///< Lista de nomes dos jogos suportados.
 
-	std::vector<std::string> gamesNames;
+    /**
+     * @brief Salva os dados no arquivo.
+     */
+    void save();
 
-   void save(){
-		std::ofstream file(this->filename);
-		// Verificar se o arquivo foi aberto com sucesso
-		if (!file.is_open()) {
-		std::ofstream newFile(this->filename);
-	    if (!newFile.is_open()) {
-		throw std::runtime_error("ERRO: Nao foi possivel criar banco de dados");
-	    }
-			file = std::move(newFile);
-			std::cout << "Criando um novo banco de dados" << std::endl;
-		}
-		// Escrever cabeçalho
-		file << "Apelido,Nome,Jogo,Vitorias,Derrotas\n";
+    /**
+     * @brief Carrega os dados do arquivo.
+     */
+    void load();
 
-		// Iterar sobre os dados e escrever no arquivo
-		for (const auto &[apelido, pairData] : data) {
-			const std::string &nome = pairData.first;
-			const auto &jogos = pairData.second;
-
-			for (const auto &[jogo, winrate] : jogos) {
-				file << apelido << "," << nome << "," << jogo << "," << winrate[0] << "," << winrate[1] << "\n";
-			}
-		}
-
-		file.close();
-		std::cout << "Dados salvos no arquivo " << this->filename << " com sucesso!" << std::endl;
-
-   }
-   void load(){
-	std::ifstream file(this->filename);
-	// Verificar se o arquivo foi aberto com sucesso
-	if (!file.is_open()) {
-		std::cout << "Banco de dados nao encontrado. Dados nao foram carregados." << std::endl;
-	  return;
-	}
-	std::string line;
-	bool isHeader = true; // Ignorar o cabeçalho
-
-	while (std::getline(file, line)) {
-		// Ignorar a primeira linha (cabeçalho)
-		if (isHeader) {
-			isHeader = false;
-			continue;
-		}
-
-		std::stringstream ss(line);
-		std::string apelido, nome, jogo, vitoriasStr, derrotasStr;
-
-		// Ler campos separados por vírgula
-		if (std::getline(ss, apelido, ',') &&
-		   std::getline(ss, nome, ',') &&
-		   std::getline(ss, jogo, ',') &&
-		   std::getline(ss, vitoriasStr, ',') &&
-		   std::getline(ss, derrotasStr, ',')) {
-
-			// Converter vitórias e derrotas para inteiros
-			int vitorias = std::stoi(vitoriasStr);
-			int derrotas = std::stoi(derrotasStr);
-
-			// Inserir os dados no mapa
-			data[apelido].first = nome; // Nome
-			data[apelido].second[jogo] = {vitorias, derrotas}; // Jogo e winrate
-			   }
-	}
-
-	file.close();
-	std::cout << "Dados carregados do arquivo " << filename << " com sucesso!" << std::endl;
-   }
+    /**
+     * @brief Verifica se uma string contém caracteres não alfanuméricos.
+     * @param str String a ser verificada.
+     * @return `true` se houver caracteres não alfanuméricos, `false` caso contrário.
+     */
+    static bool hasNonAlphanumeric(const std::string& str);
 
 public:
-	explicit SaveManager(const std::vector<std::string>& gamesNames)
-	: gamesNames(gamesNames) {
-		load();
-	}
-	~SaveManager(){
-		save();
-	}
+    /**
+     * @brief Construtor da classe SaveManager.
+     * @param gamesNames Vetor contendo os nomes dos jogos suportados.
+     * @param filename Nome do arquivo de dados (padrão: "data.csv").
+     */
+    explicit SaveManager(const std::vector<std::string>& gamesNames, const std::string& filename = "data.csv");
 
-	static bool hasNonAlphanumeric(const std::string& str) {
-		for (const char c : str) {
-			if (c != ' ' && !std::isalnum(static_cast<unsigned char>(c))) {
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * @brief Destrutor da classe SaveManager.
+     */
+    ~SaveManager();
 
-	void setPlayer(const std::string& nickname, const std::string &name){
-		if (hasNonAlphanumeric(nickname) || hasNonAlphanumeric(name)) {
-			throw std::invalid_argument("ERRO: Cadastro invalido");
-		}
-		if (data.contains(nickname)) {
-			throw std::invalid_argument("ERRO: Jogador repetido");
-		}
-		data[nickname].first = name;
+    /**
+     * @brief Define um jogador no sistema.
+     * @param nickname Apelido do jogador.
+     * @param name Nome real do jogador.
+     */
+    void setPlayer(const std::string& nickname, const std::string& name);
 
-		for (const std::string& gameName : gamesNames) {
-			data[nickname].second[gameName] = {0, 0};
-		}
+    /**
+     * @brief Obtém informações de um jogador pelo apelido.
+     * @param nickname Apelido do jogador.
+     * @return Dados do jogador (nome e estatísticas) ou um da um throw se não
+     * existir.
+     */
+    std::pair<std::string, std::map<std::string, std::array<int, 2>>>
+    getPlayer(const std::string &nickname);
 
-		std::cout << "Jogador " << nickname << " cadastrado com sucesso" << std::endl;
-    }
+    /**
+     * @brief Remove um jogador pelo apelido.
+     * @param nickname Apelido do jogador a ser removido.
+     */
+    void removePlayer(const std::string& nickname);
 
-    auto getPlayer(const std::string& nickname){
-		if (data.contains(nickname)) {
-			return data[nickname];
-		}
-		throw std::invalid_argument("ERRO: Jogador inexistente");
-    }
+    /**
+     * @brief Verifica se um jogador existe no sistema.
+     * @param nickname Apelido do jogador.
+     * @return `true` se o jogador existir, `false` caso contrário.
+     */
+    bool isPlayer(const std::string& nickname) const;
 
-    void removePlayer(const std::string& nickname){
-		if (!data.contains(nickname)) {
-			throw std::invalid_argument("ERRO: Jogador inexistente");
-		}
-			data.erase(nickname);
-			std::cout << "Jogador " << nickname << " removido com sucesso" << std::endl;
-	}
+    /**
+     * @brief Atualiza o winrate de um jogador em um determinado jogo.
+     * @param nickname Apelido do jogador.
+     * @param game Nome do jogo.
+     * @param isWinner `true` para vitória, `false` para derrota.
+     */
+    void setWinrate(const std::string& nickname, const std::string& game, const bool isWinner);
 
-	bool isPlayer(const std::string& nickname) const {
-		return data.contains(nickname);
-	}
-
-    void setWinrate(const std::string& nickname, const std::string& game, const bool isWinner){
-		if (!data.contains(nickname)) {
-			throw std::invalid_argument("ERRO: Jogador inexistente");
-		}
-
-		if (!data[nickname].second.contains(game)) {
-			throw std::runtime_error("ERRO: Jogo invalido");
-		}
-
-		if (isWinner) {
-			data[nickname].second[game][0]++;
-		} else {
-			data[nickname].second[game][1]++;
-		}
-	}
-
-	void leaderboard(const bool byNickname) {
-		// Contêiner auxiliar para armazenar e ordenar os dados
-		std::vector<std::pair<std::string, std::pair<std::string, std::map<std::string, std::array<int, 2>>>>> sortedData(data.begin(), data.end());
-
-		// Ordenar pelo critério escolhido
-		if (byNickname) {
-			std::sort(sortedData.begin(), sortedData.end(), [](const auto &a, const auto &b) {
-				return a.first < b.first; // Ordena pelo nickname
-			});
-		} else {
-			std::sort(sortedData.begin(), sortedData.end(), [](const auto &a, const auto &b) {
-				return a.second.first < b.second.first; // Ordena pelo name
-			});
-		}
-
-		size_t maxGameNameLength = 0;
-		for (const auto& [nickname, info] : this->data) {
-			for (const auto& [game, winrate] : info.second) {
-				maxGameNameLength = std::max(maxGameNameLength, game.length());
-			}
-		}
-
-		// Imprimir os dados formatados
-		for (const auto& [nickname, info] : this->data) {
-			std::cout << nickname << " " << info.first << std::endl;
-			for (const auto& [game, winrate] : info.second) {
-				// Impressão com espaçamento dinâmico
-				std::cout << std::left << std::setw(maxGameNameLength) << game
-						  << " - V: " << winrate[0] << " D: " << winrate[1] << std::endl;
-			}
-			std::cout << std::endl; // Separar cada jogador
-		}
-	}
-
+    /**
+     * @brief Exibe o ranking dos jogadores.
+     * @param byNickname Se `true`, ordena por apelido; caso contrário, ordena por winrate.
+     */
+    void leaderboard(const bool byNickname);
 };

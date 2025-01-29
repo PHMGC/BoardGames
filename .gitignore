@@ -1,5 +1,7 @@
 build
 bin
+obj
+doc
 .cache
 compile_commands.json
 .idea

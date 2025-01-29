@@ -1,107 +1,111 @@
+/**
+ * @file Game.hpp
+ * @brief Definição da classe Game para gerenciar jogos baseados em tabuleiro.
+ */
+
 #pragma once
 
 #include <utility>
 #include <regex>
-
+#include <string>
+#include <vector>
+#include <array>
+#include <iostream>
 #include "Board.hpp"
 
+/**
+ * @class Game
+ * @brief Classe base para jogos baseados em tabuleiro.
+ */
 class Game {
 protected:
-    std::string name;
-    std::vector<std::string> players;
-    int turn = 0;
-    bool isRunning = false;
-public:
-    Board board;
-    Game(const std::array<size_t,2> size, std::string name)
-    : name(std::move(name)), board(size) {}
+    std::string name; ///< Nome do jogo
+    std::vector<std::string> players; ///< Lista de jogadores
+    int turn = 0; ///< Índice do jogador atual
+    bool isRunning = false; ///< Indica se o jogo está em andamento
 
+public:
+    Board board; ///< Objeto do tabuleiro do jogo
+
+    /**
+     * @brief Construtor da classe Game.
+     * @param size Dimensão do tabuleiro.
+     * @param name Nome do jogo.
+     */
+    Game(const std::array<size_t, 2> size, std::string name);
+
+    /**
+     * @brief Destrutor virtual da classe Game.
+     */
     virtual ~Game() = default;
 
-    std::string getName() { return this->name; }
+    /**
+     * @brief Obtém o nome do jogo.
+     * @return Nome do jogo.
+     */
+    std::string getName();
 
-    virtual void initialize(const std::vector<std::string> &players) {
-        this->isRunning = true;
-        this->players = players;
-        std::cout << "Bem-vindos ao " << this->getName() << "!\n";
-        this->board.print();
-    }
+    /**
+     * @brief Inicializa o jogo com os jogadores fornecidos.
+     * @param players Vetor contendo os nomes dos jogadores.
+     */
+    virtual void initialize(const std::vector<std::string>& players);
 
-    void changeTurn()
-    {
-        turn = turn == 0 ? 1 : 0;
-    }
-    virtual bool isOver()
-    {
-        if (isWin()) {
-            std::cout << "Jogador " << players[turn] << " venceu!\n";
-            return true;
-        }
-        if (isDraw())
-        {
-            std::cout << "Empate!\n";
-            return true;
-        }
-        return !isRunning;
-    }
+    /**
+     * @brief Alterna o turno entre os jogadores.
+     */
+    void changeTurn();
 
-    virtual std::string getWinner() {
-        return this->players[turn];
-    }
+    /**
+     * @brief Verifica se o jogo terminou.
+     * @return true se o jogo terminou, false caso contrário.
+     */
+    virtual bool isOver();
 
-    virtual std::string getLoser() {
-        return this->players[turn == 0 ? 1 : 0];
-    }
+    /**
+     * @brief Obtém o vencedor do jogo.
+     * @return Nome do jogador vencedor.
+     */
+    virtual std::string getWinner();
 
-    virtual bool parsePlace(const std::string& input, std::array<size_t, 2> &pos)
-    {
-        const std::regex pattern(R"(\b(\d+) (\d+)\b)");
+    /**
+     * @brief Obtém o perdedor do jogo.
+     * @return Nome do jogador perdedor.
+     */
+    virtual std::string getLoser();
 
-        std::smatch matches;
-        if (std::regex_match(input, matches, pattern))
-        {
-            pos[0] = std::stoi(matches[1].str());
-            pos[1] = std::stoi(matches[2].str());
+    /**
+     * @brief Interpreta um comando de posicionamento.
+     * @param input Entrada do usuário.
+     * @param pos Referência para armazenar a posição interpretada.
+     * @return true se a entrada foi válida, false caso contrário.
+     */
+    virtual bool parsePlace(const std::string& input, std::array<size_t, 2>& pos);
 
-            // Verifica se os números estão dentro dos limites do tabuleiro
-            if (pos[0] < this->board.getSize()[0] && pos[1] < this->board.getSize()[1])
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    /**
+     * @brief Interpreta um comando de movimentação.
+     * @param input Entrada do usuário.
+     * @param pos1 Referência para armazenar a posição de origem.
+     * @param pos2 Referência para armazenar a posição de destino.
+     * @return true se a entrada foi válida, false caso contrário.
+     */
+    virtual bool parseMove(const std::string& input, std::array<size_t, 2>& pos1, std::array<size_t, 2>& pos2);
 
-
-    virtual bool parseMove(const std::string& input, std::array<size_t, 2> &pos1, std::array<size_t, 2> &pos2)
-    {
-        const std::regex pattern(R"(\b(\d+) (\d+) (\d+) (\d+)\b)");
-
-        std::smatch matches;
-        if (std::regex_match(input, matches, pattern))
-        {
-            pos1[0] = std::stoi(matches[1].str());
-            pos1[1] = std::stoi(matches[2].str());
-            pos2[0] = std::stoi(matches[3].str());
-            pos2[1] = std::stoi(matches[4].str());
-
-            // Verifica se todos os números estão dentro dos limites do tabuleiro
-            if (pos1[0] < this->board.getSize()[0] &&
-                pos1[1] < this->board.getSize()[1] &&
-                pos2[0] < this->board.getSize()[0] &&
-                pos2[1] < this->board.getSize()[1])
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    // Pure virtual methods
+    /**
+     * @brief Executa um turno do jogo (método puramente virtual).
+     * @return true se o turno foi executado com sucesso, false caso contrário.
+     */
     virtual bool playTurn() = 0;
 
+    /**
+     * @brief Verifica se há um vencedor (método puramente virtual).
+     * @return true se houver um vencedor, false caso contrário.
+     */
     virtual bool isWin() = 0;
+
+    /**
+     * @brief Verifica se houve empate (método puramente virtual).
+     * @return true se o jogo empatou, false caso contrário.
+     */
     virtual bool isDraw() = 0;
 };
-

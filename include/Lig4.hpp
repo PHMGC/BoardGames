@@ -1,102 +1,90 @@
 #pragma once
 
-#include "Game.hpp"
 #include "Piece.hpp"
+#include <array>
+#include <string>
+#include "Game.hpp"
 #include <iostream>
-#include <limits>
 
+/**
+ * @class Lig4Piece
+ * @brief Representa uma peça do jogo Lig4 (Lig-4).
+ *
+ * Esta classe herda de Piece e define a peça usada no jogo Lig-4.
+ */
 class Lig4Piece final : public Piece {
 public:
-    explicit Lig4Piece(const int turn, const std::string& player)
-        : Piece(turn, player) {}
+    /**
+     * @brief Constrói uma peça do Lig-4.
+     *
+     * @param turn Número do turno do jogador.
+     * @param player Nome do jogador que possui a peça.
+     */
+    explicit Lig4Piece(int turn, const std::string& player);
 
-    [[nodiscard]] bool isValidMove(std::array<size_t, 2> startPos , std::array<size_t, 2> endPos) const override {
-        return true;
-    }
+    /**
+     * @brief Verifica se um movimento é válido.
+     *
+     * @param startPos Posição inicial da peça.
+     * @param endPos Posição final da peça.
+     * @return true se o movimento for válido, false caso contrário.
+     */
+    [[nodiscard]] bool isValidMove(std::array<size_t, 2> startPos, std::array<size_t, 2> endPos) const override;
 };
 
+/**
+ * @class Lig4
+ * @brief Implementa o jogo Lig-4.
+ *
+ * Esta classe herda de Game e implementa a lógica do jogo Lig-4.
+ */
 class Lig4 final : public Game {
 public:
-    explicit Lig4() : Game({7, 6}, "Lig4") {}
+    /**
+     * @brief Constrói um objeto Lig4.
+     */
+    explicit Lig4();
 
-    bool playTurn() override {
-        std::cout << "Turno de " << players[turn] << ": envie sua jogada (<coluna>), ou SAIR para sair: ";
-        std::string input;
-        std::cin >> input;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    /**
+     * @brief Executa um turno do jogo.
+     *
+     * @return true se o turno foi jogado com sucesso, false caso contrário.
+     */
+    bool playTurn() override;
 
-        // Permitir o comando como upper ou lowercase
-        for (char& c : input) {
-            c = std::toupper(c);
-        }
-        if (input == "SAIR") {
-            isRunning = false;
-            return true;
-        }
-        if (input.size() != 1) {
-            std::cout << "Jogada invalida: " << "\n";
-            std::cout << "Tente novamente.\n";
-            return false;
-        }
+    /**
+     * @brief Coloca uma peça na coluna especificada.
+     *
+     * @param col Índice da coluna onde a peça será inserida.
+     */
+    void placePieceOnCol(size_t col);
 
-        try {
-            const size_t col = this->board.parseColInput(input[0]);
-            this->placePieceOnCol(col);
-            return true;
-        } catch (std::exception& e) {
-            std::cout << "Movimento invalido: " << e.what() << "\n";
-            std::cout << "Tente novamente.\n";
-            return false;
-        }
-    }
+    /**
+     * @brief Verifica se um jogador venceu o jogo.
+     *
+     * @return true se houver um vencedor, false caso contrário.
+     */
+    bool isWin() override;
 
-    void placePieceOnCol(const size_t col) {
-        for (size_t y = this->board.getSize()[1]; y-- > 0;) { // Correção para evitar underflow
-            if (!board.get({col, y})) {
-                board.set({col, y}, std::make_shared<Lig4Piece>(turn, players[turn]));
-                return;
-            }
-        }
-        throw std::invalid_argument("Coluna cheia. Escolha outra coluna.");
-    }
-
-    bool isWin() override {
-        // Verifica linhas, colunas e diagonais
-        for (size_t x = 0; x < this->board.getSize()[0]; ++x) {
-            for (size_t y = 0; y < this->board.getSize()[1]; ++y) {
-                if (checkLine({x, y}, {x + 1, y}, {x + 2, y}, {x + 3, y}) || // Linha horizontal
-                    checkLine({x, y}, {x, y + 1}, {x, y + 2}, {x, y + 3}) || // Linha vertical
-                    checkLine({x, y}, {x + 1, y + 1}, {x + 2, y + 2}, {x + 3, y + 3}) || // Diagonal principal
-                    checkLine({x, y}, {x + 1, y - 1}, {x + 2, y - 2}, {x + 3, y - 3})) { // Diagonal secundária
-                    return true;
-                    }
-            }
-        }
-        return false;
-    }
-
-    bool isDraw() override {
-        for (size_t y = 0; y < board.getSize()[1]; ++y) {
-            for (size_t x = 0; x < board.getSize()[0]; ++x) {
-                if (!board.get({x, y})) {
-                    return false; // Há espaços vazios
-                }
-            }
-        }
-        return true;
-    }
+    /**
+     * @brief Verifica se o jogo terminou em empate.
+     *
+     * @return true se o jogo estiver empatado, false caso contrário.
+     */
+    bool isDraw() override;
 
 private:
-    [[nodiscard]] bool checkLine(const std::array<size_t, 2> pos1, const std::array<size_t, 2> pos2, const std::array<size_t, 2> pos3, const std::array<size_t, 2> pos4) const {
-        // Verifica se todas as posições têm peças e se elas pertencem ao mesmo jogador
-        const auto piece1 = board.get(pos1);
-        const auto piece2 = board.get(pos2);
-        const auto piece3 = board.get(pos3);
-        const auto piece4 = board.get(pos4);
-
-        return piece1 && piece2 && piece3 && piece4 &&
-               piece1->getSymbol() == piece2->getSymbol() &&
-               piece2->getSymbol() == piece3->getSymbol() &&
-               piece3->getSymbol() == piece4->getSymbol();
-    }
+    /**
+     * @brief Verifica se quatro peças formam uma linha vencedora.
+     *
+     * @param pos1 Posição da primeira peça.
+     * @param pos2 Posição da segunda peça.
+     * @param pos3 Posição da terceira peça.
+     * @param pos4 Posição da quarta peça.
+     * @return true se as quatro peças formarem uma linha vencedora, false caso contrário.
+     */
+    [[nodiscard]] bool checkLine(std::array<size_t, 2> pos1,
+                                 std::array<size_t, 2> pos2,
+                                 std::array<size_t, 2> pos3,
+                                 std::array<size_t, 2> pos4) const;
 };
