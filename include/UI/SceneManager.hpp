@@ -10,8 +10,12 @@
 #include "MenuScene.hpp"
 #include "SignUpScene.hpp"
 #include "SignInScene.hpp"
+#include "GameSelectionScene.hpp"
+#include "TicTacToeScene.hpp"
+#include "Lig4Scene.hpp"
+#include "ReversiScene.hpp"
 
-enum class SceneType { MENU, SIGNUP, LOGIN, GAME_SELECTION, TICTACTOE, REVERSI, LIG4 };
+enum class SceneType { MENU, SIGNUP, LOGIN, GAME_SELECTION, TICTACTOE, LIG4, REVERSI };
 
 inline std::string scene2String(const SceneType sceneType) {
 	switch (sceneType) {
@@ -41,19 +45,26 @@ class SceneManager {
 	SceneType currentScene;
 	sf::RenderWindow& window;
 
+	std::string player1;
+	std::string player2;
+
 	ParallaxComponent background;
 
 public:
 	explicit SceneManager(GameManager& gameManager, sf::RenderWindow& window)
 		: gameManager(gameManager), window(window),
-		background("../assets/menu", {0.3, 0.6, 0.9, 1.2, 1.2, 1.5, 1.8, 0})
+		background("../assets/menu", {0.5, 0.5, 1.0, 1.25, 1.5, 2.0, 2.5, 0})
+
 	{
 		scenes[SceneType::MENU] = std::make_unique<MenuScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
 		scenes[SceneType::SIGNUP] = std::make_unique<SignUpScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
 		scenes[SceneType::LOGIN] = std::make_unique<SignInScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
-		scenes[SceneType::GAME_SELECTION] = std::make_unique<MenuScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
+		scenes[SceneType::GAME_SELECTION] = std::make_unique<GameSelectionScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
+		scenes[SceneType::TICTACTOE] = std::make_unique<TicTacToeScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
+		scenes[SceneType::LIG4] = std::make_unique<Lig4Scene>(gameManager, window, this, "../assets/PressStart2P.ttf");
+		scenes[SceneType::REVERSI] = std::make_unique<ReversiScene>(gameManager, window, this, "../assets/PressStart2P.ttf");
 
-		currentScene = SceneType::MENU;
+		currentScene = SceneType::GAME_SELECTION;
 	}
 
 	void setCurrentScene(const SceneType& scene_type) {
@@ -67,6 +78,15 @@ public:
 
 	[[nodiscard]] Scene& getCurrentScene() {
 		return *scenes[currentScene];
+	}
+
+	void setCurrentPlayers(const std::string& player1, const std::string& player2) {
+		this->player1 = player1;
+		this->player2 = player2;
+	}
+
+	std::vector<std::string> getCurrentPlayers() {
+		return {player1, player2};
 	}
 
 	void handleEvents(const std::optional<sf::Event>& event) {

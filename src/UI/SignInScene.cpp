@@ -34,10 +34,11 @@ void SignInScene::handleAction() {
 		}
 
 		// Tudo está certo, vamos para a seleção de jogos
+		sceneManager->setCurrentPlayers(p1input, p2input);
 		player1.input.clear();
 		player2.input.clear();
 		currentIndex = 0;
-		// sceneManager->setCurrentScene(SceneType::GAME_SELECTION);
+		sceneManager->setCurrentScene(SceneType::GAME_SELECTION);
 	}
 
 	if (currentIndex == maxIndex) {

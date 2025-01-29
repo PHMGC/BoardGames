@@ -9,7 +9,10 @@ add_executable(BoardGames src/main.cpp
         src/UI/MenuScene.cpp
         src/UI/SignUpScene.cpp
         src/UI/SignInScene.cpp
-        include/UI/ImageContainer.hpp
+        src/UI/GameSelectionScene.cpp
+        src/UI/TicTacToeScene.cpp
+        src/UI/Lig4Scene.cpp
+        src/UI/ReversiScene.cpp
 )
 
 ## Adding SFML project to build

@@ -58,27 +58,34 @@ struct InputContainer {
         cross.sprite.setScale({0.15f, 0.15f});
     }
 
-    void updateInput(char typedChar) {
-        if (!isTyping) return;
+	void updateInput(char typedChar) {
+    	if (!isTyping) {
+    		text.setString(input.empty() ? placeholder : input);
+    		return;
+    	}
+
     	setInvalidWarning(false, "");
-        if (typedChar == '\b' && !input.empty()) {
-            input.pop_back();
-        } else if (std::isprint(typedChar) && input.size() < MAX_INPUT_SIZE) {
-            input += typedChar;
-			text.setString(input);
-        }
+    	if (typedChar == '\b' && !input.empty()) {
+    		input.pop_back();
+    	} else if (std::isprint(typedChar) && input.size() < MAX_INPUT_SIZE) {
+    		input += typedChar;
+    	}
     	text.setString(input.empty() ? placeholder : input);
     }
 
+
 	void setInvalidWarning(bool enable, const std::string& warning) {
     	isInputValid = !enable;
-		placeholder = enable ? warning : default_placeholder;
-    	text.setString(enable ? placeholder : input);
-    	input = enable ? "" : input;
+    	placeholder = enable ? warning : default_placeholder;
+    	text.setString(enable ? placeholder : (input.empty() ? placeholder : input));
+    	if (enable) {
+    		input.clear();
+    	}
     }
 
 	void setTyping(bool typing) {
     	isTyping = typing;
+    	text.setString(input.empty() ? placeholder : input);
     }
 
     bool hasInput() const {
@@ -111,9 +118,11 @@ struct InputContainer {
     }
 
 	void reset() {
-	    input.clear();
+    	input.clear();
+    	placeholder = default_placeholder;
     	setInvalidWarning(false, "");
     	hasEnteredInput = false;
+    	text.setString(placeholder);
     }
 };
 

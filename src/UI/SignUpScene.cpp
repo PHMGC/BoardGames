@@ -7,9 +7,11 @@ bool SignUpScene::validateInput(InputContainer& container) {
     container.setInvalidWarning(container.input.empty(), "Entrada obrigatoria");
     if (!container.isInputValid) return false;
 
-    // Verificação se existe
-    container.setInvalidWarning(gameManager.saveManager.isPlayer(container.input), "Jogador ja existe");
-    if (!container.isInputValid) return false;
+    if (&container == &playerNickname) {
+        // Verificação se existe
+        container.setInvalidWarning(gameManager.saveManager.isPlayer(container.input), "Jogador ja existe");
+        if (!container.isInputValid) return false;
+    }
 
     // Validação do formato
     container.setInvalidWarning(!SaveManager::isFormatValid(container.input), "Formato invalido");

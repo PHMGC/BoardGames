@@ -19,7 +19,7 @@ int main() {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
-            sceneManager.getCurrentScene().handleEvents(event);
+            sceneManager.handleEvents(event);
         }
         sceneManager.draw();
     }
