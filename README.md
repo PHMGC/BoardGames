@@ -125,3 +125,9 @@ O executável será gerado no diretório `bin`. Execute-o com:
 * Outra alternativa recomendada é o uso do editor de texto Visual Studio Code com as extensões **clangd** e **C/C++**,
   para detecção de erros e análise estática, tornando o desenvolvimento prático, produtivo e eficiente.
 ---
+
+## ✨ Autores
+
+- Pedro Henrique Moreira Guimarães Cortez 
+- Gustavo Luiz Araújo 
+- João Neimerck 
