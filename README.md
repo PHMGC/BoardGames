@@ -87,7 +87,7 @@ Certifique-se de ter os seguintes componentes instalados antes de compilar o pro
 ### Passo 0: Clone o repositório
 Para começar, clone o repositório no local de sua escolha (certifique-se de ter git instalado):
    ```bash
-   git clone https://github.com/PHMGC/MiniGames.git
+   git clone https://github.com/PHMGC/BoardGames.git
    ```
 ### 1. Configurar o Build
 1. Navegue até o diretório raiz:
